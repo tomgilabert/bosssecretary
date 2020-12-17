@@ -53,7 +53,7 @@
 	{
 		$group_number = bosssecretary_get_group_number_free();
 		$chiefs = bosssecretary_str_extensions_to_array($_POST["chiefs_extensions"]);
-		$errors = bosssecretary_group_add($group_number, $_POST["group_label"], $extensionsCleaned["bosses"],$extensionsCleaned["secretaries"], $chiefs);
+		$errors = bosssecretary_group_add($group_number, $_POST["group_label"], $extensionsCleaned["bosses"],$extensionsCleaned["secretaries"], $chiefs, $_POST["silent_ring"]);
 		$params["message_title"] = "";
 		$params["message_details"] = array();
 		if (empty($errors))
@@ -67,12 +67,15 @@
 		{
 			//$params["group_number"] = $_POST["group_number"];
 			$params["group_label"] = $_POST["group_label"];
+			$params["silent_ring"]  = $_POST["silent_ring"];
 			$params["chiefs"] = $_POST["chiefs"];
 			$params["bosses"] = $extensionsCleaned["bosses"];
 			$params["secretaries"] = $extensionsCleaned["secretaries"];
 			$params["message_title"] = "Errors were encountered, details";
 			$params["message_details"] = $errors;	
 		}
+		//
+		//$params["message_details"] = $params;
 		$content = bosssecretary_get_form_add( $params);
 	}
 	elseif( isset($_POST["cleanAdd"]))
@@ -94,7 +97,7 @@
 	{
 
 		$chiefs = bosssecretary_str_extensions_to_array($_POST["chiefs_extensions"]);
-		$errors = bosssecretary_group_edit($_POST["group_number"], $_POST["group_label"], $extensionsCleaned["bosses"],$extensionsCleaned["secretaries"], $chiefs);
+		$errors = bosssecretary_group_edit($_POST["group_number"], $_POST["group_label"], $extensionsCleaned["bosses"],$extensionsCleaned["secretaries"], $chiefs,$_POST["silent_ring"]);
 		if (empty($errors))
 		{
 			$params["message_title"] = "Group Edited";
@@ -108,9 +111,12 @@
 		}
 		$params["group_number"]	= $_POST["group_number"];
 		$params["group_label"] 	= $_POST["group_label"];
+		$params["silent_ring"]  = $_POST["silent_ring"];
 		$params["chiefs"] 	= $chiefs;
 		$params["bosses"] 	= $extensionsCleaned["bosses"];
 		$params["secretaries"] 	= $extensionsCleaned["secretaries"];
+		//
+		//$params["message_details"] = array(var_dump($params));
 		$content = bosssecretary_get_form_edit( $params);
 	}
 	elseif (isset($_GET["bsgroupdisplay"]))
@@ -123,6 +129,7 @@
 		else
 		{
 			$params = bosssecretary_set_params_to_edit(bosssecretary_get_data_of_group($group));
+			//$params["message_details"] = array(var_dump($params));
 			$content = bosssecretary_get_form_edit($params);
 		}
 	}

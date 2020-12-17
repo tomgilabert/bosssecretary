@@ -26,5 +26,5 @@ fnc=blf+sd;sub=*152EXT@$PROXY;ext=*152@PROXY
 
 Or chan_sccp for a secretry using extension 9999:
 ```
-button = speeddial, *152, ToggleBossSecretry, *1529999@app-bosssecretary-hints
+button = speeddial, *152, ToggleBossSecretary, *1529999@app-bosssecretary-hints
 ```

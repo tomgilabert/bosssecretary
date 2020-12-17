@@ -1,7 +1,7 @@
 <module>
 	<rawname>bosssecretary</rawname>
 	<name>Boss Secretary</name>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<type>setup</type>
 	<category>Applications</category>
 	<description>
@@ -15,6 +15,7 @@ the boss' extension, the secretary (or secretaries) extension will ring only, al
 		<bosssecretary category="Applications" type="setup" needsenginedb="true">Boss Secretary</bosssecretary>
 	</menuitems>
 	<changelog>
+		*1.0.2* Add support for silent ring on boss extension
 		*1.0.1* Minor Cleanup
 		*1.0* Module changed to new dialpan. Module is now compatible with Asterisk 1.6X and newer with all BLF functionality.
 	</changelog>

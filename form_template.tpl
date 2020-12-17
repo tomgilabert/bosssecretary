@@ -16,9 +16,14 @@
 				<td align="center"><a href="#" class="info"><span>Put chiefs extensions here</span>Chiefs</a> </td>
 			</tr>
 			<tr>
-				<td><textarea name="bosses_extensions">{bosses_extensions}</textarea></td>
+				<td><textarea name="bosses_extensions">{bosses_extensions}</textarea><br/></td>
 				<td><textarea name="secretaries_extensions">{secretaries_extensions}</textarea></td>
 				<td><textarea name="chiefs_extensions">{chiefs_extensions}</textarea></td>
+			</tr>
+			<tr>
+				<td><input type="Checkbox" name="silent_ring" value=on {silent_ring}>Ring Boss(es) Silently</td>
+				<td></td>
+				<td></td>
 			</tr>
 			<tr>
 				<td colspan="3" align="center"> <input type="submit" name="clean{action}" value="Clean and remove duplicates" />

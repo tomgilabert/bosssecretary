@@ -146,6 +146,7 @@ function bosssecretary_get_config($engine){
 				{
 					$AllExtensions = array_merge($group["bosses"], $group["secretaries"]);
 					$id_group = $group["id_group"];
+					$silent_ring = $group["silent_ring"];
 
 					foreach ($group["bosses"] as $extension)
 					{
@@ -156,8 +157,11 @@ function bosssecretary_get_config($engine){
 						$ext->add($ctx_bsc, $extension, '', new ext_gotoif('${DB_EXISTS(bosssecretary/group/'.$id_group.'/locked)}','exit_module','run_module'));
 						$ext->add($ctx_bsc, $extension, 'run_module', new ext_noop("Bosssecretary: Executing module"));
 						$ext->add($ctx_bsc, $extension, '', new ext_sipaddheader("Alert-Info", "<http://nohost>\;info=alert-group\;x-line-id=0"));
-						$ext->add($ctx_bsc, $extension, '', new ext_setvar("Alert-Info", "bellcore-dr3"));
+						$ext->add($ctx_bsc, $extension, '', new ext_setvar("Alert-Info", "bellcore-dr3")); // feature ring
 						$extensions = array();
+						if ($silent_ring === "on") {
+							$extensions[] = "$extension";
+						}
 						foreach ($group["secretaries"] as $secretary_ext)
 						{
 							$extensions[] = "$secretary_ext";
@@ -165,6 +169,7 @@ function bosssecretary_get_config($engine){
 						$args = '${RINGTIMER},${DIAL_OPTIONS},' . implode ("-", $extensions);
 						$ext->add($ctx_bsc, $extension, '', new ext_macro ("dial", $args));
 						$ext->add($ctx_bsc, $extension, 'exit_module', new ext_noop("Bosssecretary: Exit") );
+						$ext->add($ctx_bsc, $extension, '', new ext_setvar("Alert-Info", "bellcore-dr5"));  // urgent ring to override '!silent'
 						$ext->add($ctx_bsc, $extension, '', new ext_goto(1, $extension, "ext-local") );
 						$extensions = "";
 					}
@@ -235,6 +240,7 @@ function bosssecretary_to_group($groups)
 				$newGroup[$group["id_group"]]["chiefs"] = array();
 				$newGroup[$group["id_group"]]["chiefs"][$group["chief_extension"]] = $group["chief_extension"];
 			}
+			$newGroup[$group["id_group"]]["silent_ring"] = $group["silent_ring"];
 		}
 		else
 		{
@@ -250,6 +256,7 @@ function bosssecretary_to_group($groups)
 			{
 				$newGroup[$group["id_group"]]["chiefs"][$group["chief_extension"]] = $group["chief_extension"];
 			}
+			$newGroup[$group["id_group"]]["silent_ring"] = $group["silent_ring"];
 		}
 	}
 	return $newGroup;
@@ -290,10 +297,11 @@ function bosssecretary_get_all_groups()
 {
 	global $db;
 	$sql = "SELECT
-			g.id_group, 
+			g.id_group,
 			boss_extension, 
 			secretary_extension,
-			chief_extension  
+			chief_extension,
+			silent_ring
 		FROM bosssecretary_group AS g  
 		INNER JOIN bosssecretary_boss AS b ON g.id_group = b.id_group 
 		INNER JOIN bosssecretary_secretary AS s ON g.id_group = s.id_group
@@ -426,7 +434,7 @@ function bosssecretary_remove_group_number_free($number)
 	return sql($sql);
 }
 
-function bosssecretary_group_add ( $group_number, $group_label,  array $bosses, array $secretaries, $chiefs)
+function bosssecretary_group_add ( $group_number, $group_label,  array $bosses, array $secretaries, $chiefs, $silent_ring = 'off')
 {
 	global $db;
 	$errors= array();
@@ -456,7 +464,7 @@ function bosssecretary_group_add ( $group_number, $group_label,  array $bosses, 
 					$boss = trim($boss);
 					if (!empty($boss) and !(bosssecretary_extension_in_bosses_group($boss)))
 					{
-						$sql = "INSERT INTO bosssecretary_boss VALUES ('$group_number', '$boss');";
+						$sql = "INSERT INTO bosssecretary_boss VALUES ('$group_number', '$boss', '$silent_ring');";
 						sql($sql);
 					}
 					else
@@ -506,7 +514,7 @@ function bosssecretary_group_add ( $group_number, $group_label,  array $bosses, 
 
 }
 
-function bosssecretary_group_edit ( $group_number, $group_label,  array $bosses, array $secretaries, array $chiefs)
+function bosssecretary_group_edit ( $group_number, $group_label,  array $bosses, array $secretaries, array $chiefs, $silent_ring = 'off')
 {
 	global $db;
 	$errors= array();
@@ -544,7 +552,7 @@ function bosssecretary_group_edit ( $group_number, $group_label,  array $bosses,
 					$boss = trim($boss);
 					if (!empty($boss))
 					{
-						$sql = "INSERT INTO bosssecretary_boss VALUES ('$group_number', '$boss');";
+						$sql = "INSERT INTO bosssecretary_boss VALUES ('$group_number', '$boss', '$silent_ring');";
 						sql($sql);
 					}
 				}
@@ -644,6 +652,7 @@ function bosssecretary_get_data_of_group($group)
 			g.id_group, 
 			g.label, 
 			b.boss_extension, 
+			b.silent_ring,
 			s.secretary_extension,
 			c.chief_extension  
 		FROM bosssecretary_group AS g 
@@ -774,6 +783,7 @@ function bosssecretary_set_params_to_edit( $records)
 	$first = current($records);
 	$vars["group_number"] =  $first["id_group"];
 	$vars["group_label"] =  $first["label"];
+	$vars["silent_ring"] = $first["silent_ring"];
 
 	if (trim($vars["group_label"]) == "")
 	{
@@ -901,6 +911,7 @@ function bosssecretary_get_form_add( array $params)
 	$vars["secretaries_extensions"]	=	(isset($params["secretaries"])) ? implode($params["secretaries"], "\n") : '';
 	$vars["chiefs_extensions"]	=	(isset($params["chiefs"])) ? implode($params["chiefs"], "\n") : '';
 	$vars["group_label"] = (isset($params["group_label"])) ? $params["group_label"] : '';
+	$vars["silent_ring"] = $params["silent_ring"] == "on" ? "checked" : "";
 	$vars["delete_button"] = "";
 	$vars["action"] = "Add";
 	$vars["message_details"] = $params["message_details"];
@@ -917,12 +928,14 @@ function bosssecretary_get_form_edit( array $params)
 	$vars["chiefs_extensions"]	=	(isset($params["chiefs"])) ? implode($params["chiefs"], "\n") : '';
 	$vars["group_number"] = $params["group_number"];
 	$vars["group_label"] = $params["group_label"];
+	$vars["silent_ring"] = $params["silent_ring"] == "on" ? "checked" : "";
 	$vars["delete_button"] = bosssecretary_get_delete_button();
 	$vars["action"] = "Edit";
 	$vars["message_details"] = $params["message_details"];
 	$vars["message_title"] = $params["message_title"];
 	$vars["delete_question"] = "Do you really to want delete " . $vars["group_number"] . " (" .$vars["group_label"] . ") group?";
 	$vars["delete_url"] = "config.php?display=bosssecretary&bsgroupdelete=".BOSSSECRETARY_PARAM_PREFIX. $params["group_number"];
+	//$vars["message_details"] = array(var_dump($vars));
 	return bosssecretary_get_form($vars);
 }
 

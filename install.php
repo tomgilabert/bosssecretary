@@ -47,6 +47,7 @@ $sql = "
 CREATE TABLE IF NOT EXISTS `bosssecretary_boss` (
   `id_group` int(10) unsigned NOT NULL,
   `boss_extension` varchar(20) NOT NULL,
+  `silent_ring` ENUM('on','off') default 'off' NOT NULL,
   PRIMARY KEY (`id_group`,`boss_extension`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 ";
@@ -55,7 +56,19 @@ if(DB::IsError($check)) {
         die_freepbx("Can not create bosssecretary_boss table");
 }
 
+$sql = "SHOW COLUMNS FROM `bosssecretary_boss`";
+$results = $db->getAll($sql);
+if(DB::IsError($results)) {
+	die_freepbx("Can not check bosssecretary_group table");
+}
 
+if (!in_array($results, 'silent_ring')) {
+	$sql = "ALTER TABLE `bosssecretary_boss` ADD `silent_ring` ENUM('on','off') default 'off' NOT NULL";
+	$check = $db->query($sql);
+	if(DB::IsError($check)) {
+		die_freepbx("Can not alter bosssecretary_group table");
+	}
+}
 
 $sql = "
 CREATE TABLE IF NOT EXISTS `bosssecretary_group` (
