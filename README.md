@@ -28,3 +28,13 @@ Or chan_sccp for a secretry using extension 9999:
 ```
 button = speeddial, *152, ToggleBossSecretary, *1529999@app-bosssecretary-hints
 ```
+
+Use of 'silent_ring'
+------
+You can create a line button on the bosses phone using
+```
+button = line, 1234, bossman !silent
+```
+And check the "Ring boss(es) silently" checkbox. Bosses will see an incoming
+call on the phone but it will not ring. However when another boss, secretary
+or chief calls the phone will ring.
