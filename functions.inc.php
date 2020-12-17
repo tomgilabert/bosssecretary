@@ -1,13 +1,9 @@
 <?php
-
-
 /********************************************************
-*														*
-* 					API FUNCTIONS						*
-*														*
+*							*
+* API FUNCTIONS						*
+*							*
 ********************************************************/
-
-
 define("BOSSSECRETARY_PARAM_PREFIX", "bsgroup-");
 define("BOSSSECRETARY_LABEL_DEFAULT", "Group ");
 define("BOSSSECRETARY_CONTEXT", "ext-bosssecretary");
@@ -18,7 +14,6 @@ define("BOSSSECRETARY_ON", "app-bosssecretary-on");
 define("BOSSSECRETARY_OFF", "app-bosssecretary-off");
 define("BOSSSECRETARY_HINTS", "app-bosssecretary-hints");
 
-
 function bosssecretary_get_config($engine){
 	global $db;
 	global $ext;
@@ -27,20 +22,16 @@ function bosssecretary_get_config($engine){
 
 	switch($engine) {
 		case "asterisk":
+			$fcc_toggle	= bosssecretary_get_fcc_toggle();
+			$fcc_on		= bosssecretary_get_fcc_on();
+			$fcc_off	= bosssecretary_get_fcc_off();
+			$groups		= bosssecretary_get_all_groups();
 
-
-
-
-			$fcc_toggle = bosssecretary_get_fcc_toggle();
-			$fcc_on  = bosssecretary_get_fcc_on();
-			$fcc_off  = bosssecretary_get_fcc_off();
-			$groups = bosssecretary_get_all_groups();
-
-			$ctx_app_toggle =   BOSSSECRETARY_TOGGLE;
-			$ctx_app_on     =   BOSSSECRETARY_ON;
-			$ctx_app_off    =   BOSSSECRETARY_OFF;
-			$ctx_app_hints	=	BOSSSECRETARY_HINTS;
-			$ctx_bsc		=	BOSSSECRETARY_CONTEXT;
+			$ctx_app_toggle = BOSSSECRETARY_TOGGLE;
+			$ctx_app_on     = BOSSSECRETARY_ON;
+			$ctx_app_off    = BOSSSECRETARY_OFF;
+			$ctx_app_hints	= BOSSSECRETARY_HINTS;
+			$ctx_bsc	= BOSSSECRETARY_CONTEXT;
 
 			$ext->addInclude('from-internal-additional', $ctx_bsc);
 			$ext->addInclude($ctx_bsc, $ctx_app_toggle);
@@ -50,11 +41,8 @@ function bosssecretary_get_config($engine){
 
 			if (!empty($groups))
 			{
-
 				$astman->database_deltree("bosssecretary/group");
 				$groups = bosssecretary_to_group($groups);
-
-
 
 				foreach ($groups as $group)
 				{
@@ -76,7 +64,6 @@ function bosssecretary_get_config($engine){
 					}
 				}
 				// :::: BSC Off [app-bosssecretary-on] ::::
-
 				$ext->add($ctx_app_on, $fcc_on, '', new ext_noop("Bosssecretary on starts..."));
 				$ext->add($ctx_app_on, $fcc_on, '', new ext_answer());
 				$ext->add($ctx_app_on, $fcc_on, '', new ext_macro ('user-callerid'));
@@ -92,7 +79,6 @@ function bosssecretary_get_config($engine){
 				$ext->add($ctx_app_on, $fcc_on, '', new ext_hangup());
 				$ext->add($ctx_app_on, 'sstate', '', new ext_setvar('DEVICE_STATE(Custom:BSC${GROUP})','${STATE}'));
 				$ext->add($ctx_app_on, 'sstate', 'return', new ext_return());
-
 
 				// :::: BSC Off [app-bosssecretary-off] ::::
 				$ext->add($ctx_app_off, $fcc_off, '', new ext_noop("Bosssecretary off starts..."));
@@ -137,7 +123,6 @@ function bosssecretary_get_config($engine){
 				// :::: BSC Hints [app-bosssecretary-hints] ::::
 				foreach ($groups as $group)
 				{
-
 					$id_group = $group["id_group"];
 					foreach ($group["bosses"] as $extension)
 					{
@@ -154,7 +139,6 @@ function bosssecretary_get_config($engine){
 						$ext->add($ctx_app_hints, $ext_subscribed, '', new ext_goto(1, $fcc_toggle, $ctx_app_toggle));
 						$ext->addHint($ctx_app_hints, $ext_subscribed, $hint);
 					}
-
 				}
 
 				// :::: BSC Context [ext-bosssecretary] ::::
@@ -165,7 +149,7 @@ function bosssecretary_get_config($engine){
 
 					foreach ($group["bosses"] as $extension)
 					{
-						$ext->add($ctx_bsc, $extension, '', new ext_noop("Bosssecretary: Checking  lock for $extension extension"));
+						$ext->add($ctx_bsc, $extension, '', new ext_noop("Bosssecretary: Checking lock for $extension extension"));
 						$ext->add($ctx_bsc, $extension, '', new ext_macro ('user-callerid'));
 						$ext->add($ctx_bsc, $extension, '', new ext_setvar('CALLER','${CALLERID(num)}'));
 						$ext->add($ctx_bsc, $extension, '', new ext_gotoif('${DB_EXISTS(bosssecretary/group/'.$id_group.'/member/${CALLER})}','exit_module'));
@@ -175,9 +159,9 @@ function bosssecretary_get_config($engine){
 						$extensions = array();
 						
 						// David
-						foreach ($group["secretaries"] as $sip_extension)
+						foreach ($group["secretaries"] as $extension)
 						{
-							$extensions[] = "$sip_extension";
+							$extensions[] = "$extension";
 						}
 						//	$extensions[] = "$extension";
 						$args = '${RINGTIMER},${DIAL_OPTIONS},' . implode ("-", $extensions);
@@ -188,19 +172,16 @@ function bosssecretary_get_config($engine){
 					}
 				}
 			}
-
 			break;
 	}
 
 }
 
-
 /********************************************************
-*														*
-* 					DATABASE FUNCTIONS					*
-*														*
+*							*
+* DATABASE FUNCTIONS					*
+*							*
 ********************************************************/
-
 function bosssecretary_get_groups()
 {
 	global $db;
@@ -211,7 +192,6 @@ function bosssecretary_get_groups()
 	}
 	return $results;
 }
-
 
 function bosssecretary_get_fcc_toggle()
 {
@@ -237,8 +217,6 @@ function bosssecretary_get_fcc_off()
 	return $extLock;
 }
 
-
-
 function bosssecretary_to_group($groups)
 {
 	$newGroup = array();
@@ -252,7 +230,6 @@ function bosssecretary_to_group($groups)
 			$newGroup[$group["id_group"]]["bosses"][$group["boss_extension"]] = $group["boss_extension"];
 
 			$newGroup[$group["id_group"]]["secretaries"] = array();
-			// isset is so much faster than in_array ;)
 			$newGroup[$group["id_group"]]["secretaries"][$group["secretary_extension"]] = $group["secretary_extension"];
 
 			if (isset($group["chief_extension"]))
@@ -263,12 +240,10 @@ function bosssecretary_to_group($groups)
 		}
 		else
 		{
-			// isset is so much faster than in_array ;)
 			if (!isset($newGroup[$group["id_group"]]["bosses"][$group["boss_extension"]]))
 			{
 				$newGroup[$group["id_group"]]["bosses"][$group["boss_extension"]] = $group["boss_extension"];
 			}
-			// isset is so much faster than in_array ;)
 			if (!isset($newGroup[$group["id_group"]]["secretaries"][$group["secretary_extension"]]))
 			{
 				$newGroup[$group["id_group"]]["secretaries"][$group["secretary_extension"]] = $group["secretary_extension"];
@@ -301,10 +276,8 @@ function bosssecretary_search($extensions)
 			UNION 
 			SELECT secretary_extension AS extension, 'secretary' as `type`, g.* FROM bosssecretary_group as g INNER JOIN bosssecretary_secretary as s ON s.id_group = g.id_group  WHERE secretary_extension IN ($extensions)
 			UNION
-			SELECT chief_extension AS extension, 'chief' as `type`, g.* FROM bosssecretary_group as g INNER JOIN bosssecretary_chief as c ON c.id_group = g.id_group  WHERE chief_extension IN ($extensions)
-";
+			SELECT chief_extension AS extension, 'chief' as `type`, g.* FROM bosssecretary_group as g INNER JOIN bosssecretary_chief as c ON c.id_group = g.id_group  WHERE chief_extension IN ($extensions)";
 		//echo $sql . "<br>";
-
 		$results = $db->getAll($sql, array(), DB_FETCHMODE_ASSOC);
 		if(DB::IsError($results)) {
 			$results = null;
@@ -314,7 +287,6 @@ function bosssecretary_search($extensions)
 	return null;
 
 }
-
 
 function bosssecretary_get_all_groups()
 {
@@ -327,8 +299,7 @@ function bosssecretary_get_all_groups()
 		FROM bosssecretary_group AS g  
 		INNER JOIN bosssecretary_boss AS b ON g.id_group = b.id_group 
 		INNER JOIN bosssecretary_secretary AS s ON g.id_group = s.id_group
-		LEFT JOIN bosssecretary_chief AS c ON g.id_group = c.id_group
-;";
+		LEFT JOIN bosssecretary_chief AS c ON g.id_group = c.id_group;";
 	$results = $db->getAll($sql, array(), DB_FETCHMODE_ASSOC);
 	if(DB::IsError($results)) {
 		$results = null;
@@ -339,7 +310,6 @@ function bosssecretary_get_all_groups()
 function bosssecretary_array_diff_with_db(array $exts, $group_number)
 {
 	global $db;
-
 
 	if (!empty($exts))
 	{
@@ -399,21 +369,21 @@ function bosssecretary_array_diff_with_db(array $exts, $group_number)
 
 function bosssecretary_clean_remove_duplicates( $bosses, $secretaries , $group_number = "")
 {
-	// Extraigo las extensiones de jefes del formulario
+	// Extract the Boss extensions
 	$arr_bosses_extensions = bosssecretary_str_extensions_to_array($bosses);
 
-	// Extraigo las extensiones de secretaria del formulario
+	// Extract the secretary extensions
 	$arr_secretaries_extensions = bosssecretary_str_extensions_to_array($secretaries);
 
-	// Quito de las extensiones de secretarias las extensiones que estan en los jefes
+	// Remove the secretary extensions from the boss extensions
 	$arr_secretaries_extensions = bosssecretary_array_diff($arr_secretaries_extensions, $arr_bosses_extensions);
 
-
 	$extensionsCleaned = array();
-	// Ahora quito de las extensiones de secretarias las extensiones que ya son jefes o secretarias segun la BD
+	
+	// Remove the secretary extensions from the list or bosses and secretaries that are already in the database
 	$extensionsCleaned["secretaries"] = bosssecretary_array_diff_with_db($arr_secretaries_extensions, $group_number);
 
-	// Ahora quito de las extensiones de jefes las extensiones que ya son jefes o secretarias segun la BD
+	// Remove the boss extensions from the list or bosses and secretaries that are already in the database
 	$extensionsCleaned["bosses"] = bosssecretary_array_diff_with_db($arr_bosses_extensions, $group_number);
 	return $extensionsCleaned;
 }
@@ -466,8 +436,6 @@ function bosssecretary_remove_group_number_free($number)
 	$sql = "DELETE FROM bosssecretary_group_numbers_free WHERE _rowid = '$number'";
 	return sql($sql);
 }
-
-
 
 function bosssecretary_group_add ( $group_number, $group_label,  array $bosses, array $secretaries, $chiefs)
 {
@@ -549,7 +517,6 @@ function bosssecretary_group_add ( $group_number, $group_label,  array $bosses, 
 
 }
 
-
 function bosssecretary_group_edit ( $group_number, $group_label,  array $bosses, array $secretaries, array $chiefs)
 {
 	global $db;
@@ -624,8 +591,6 @@ function bosssecretary_group_edit ( $group_number, $group_label,  array $bosses,
 		array_push($errors, 'Group number must be a value numeric');
 	}
 	return $errors;
-
-
 }
 
 function bosssecretary_group_delete($group_number)
@@ -633,7 +598,6 @@ function bosssecretary_group_delete($group_number)
 	global $db;
 	$sql = "DELETE FROM `bosssecretary_group` WHERE id_group = '$group_number'";
 	$group = sql($sql);
-
 
 	$sql = "DELETE FROM `bosssecretary_boss` WHERE id_group = '$group_number'";
 	$bosses = sql($sql);
@@ -660,10 +624,6 @@ function bosssecretary_group_exists( $group)
 	return count($results) == 1;
 }
 
-
-
-
-
 function bosssecretary_extension_in_bosses_group( $ext)
 {
 	global $db;
@@ -675,7 +635,6 @@ function bosssecretary_extension_in_bosses_group( $ext)
 	return count($results) == 1;
 }
 
-
 function bosssecretary_extension_in_secretaries_group( $ext)
 {
 	global $db;
@@ -686,8 +645,6 @@ function bosssecretary_extension_in_secretaries_group( $ext)
 	}
 	return count($results) == 1;
 }
-
-
 
 function bosssecretary_get_data_of_group($group)
 {
@@ -713,8 +670,6 @@ function bosssecretary_get_data_of_group($group)
 	return $results;
 }
 
-
-
 function bosssecretary_get_extension_data($ext){
 	global $db;
 	$sql = " SELECT extension, name FROM `users` u WHERE extension = '" .  $db->escapeSimple($ext) . "' LIMIT 1;";
@@ -736,15 +691,13 @@ function bosssecretary_extension_exists($ext){
 	return count($result[0]) === 1;
 }
 
-
 /********************************************************
-*														*
-* 					UTILS FUNCTIONS						*
-*														*
+*							*
+* UTILS FUNCTIONS					*
+*							*
 ********************************************************/
 
 /*
-
 $haystack = array('a','b','c', 'd');
 $needle = array('b','c', 'd','e');
 
@@ -754,10 +707,7 @@ $result is equal to array('a').
 
 Yeah! I know! array_diff is a php function BUT is broken since v4.0.4 and we need it!
 http://www.php.net/array_diff
-
 */
-
-
 function bosssecretary_array_diff(array $haystack, array $needle)
 {
 	foreach ($needle as $value)
@@ -771,17 +721,11 @@ function bosssecretary_array_diff(array $haystack, array $needle)
 }
 
 /*
-
 $haystack = array('a', 'b', 1, 10);
-
 echo  bosssecretary_array_to_mysql_param_in($haystack);
-
 output is:
 'a', 'b', '1', '10'
-
 */
-
-
 function bosssecretary_array_to_mysql_param_in(array $params)
 {
 	global $db;
@@ -792,9 +736,6 @@ function bosssecretary_array_to_mysql_param_in(array $params)
 	}
 	return implode($arrParams, ", ");
 }
-
-
-
 
 function bosssecretary_str_extensions_to_array($strExtensions)
 {
@@ -835,9 +776,8 @@ function bosssecretary_create_nav_groups_links($groups, $dispnum)
 
 function bosssecretary_extract_group_from_request( $param)
 {
-	return ltrim($param, BOSSSECRETARY_PARAM_PREFIX); // easy, isn't it?
+	return ltrim($param, BOSSSECRETARY_PARAM_PREFIX);
 }
-
 
 function bosssecretary_set_params_to_edit( $records)
 {
@@ -880,16 +820,12 @@ function bosssecretary_set_params_to_edit( $records)
 }
 
 /********************************************************
-*														*
-* 					GUI FUNCTIONS						*
-*														*
+*							*
+* Ajax/GUI FUNCTIONS						*
+*							*
 ********************************************************/
-
-
 function bosssecretary_content($title, $content, $messages){
 	echo <<<OUTPUT
-
-
 <div class="content">
 	<h2>$title</h2>
 <script>
@@ -914,7 +850,6 @@ function setExtensions()
 		document.getElementById('divExtensions').innerHTML = datos;
 	}
 }
-
 
 function GetXmlHttpObject(handler){
 	var objXmlHttp=null
@@ -948,12 +883,11 @@ function GetXmlHttpObject(handler){
 <form method="post" name=searchbosssecretary action="config.php?display=bosssecretary" onsubmit="getExtensions(document.getElementById('extensions').value); return false;">
 <table>
 			<tr>
-				<td colspan="2"><h5>Buscar grupo</h5> <hr /> </td>
+				<td colspan="2"><h5>Lookup Extension</h5><hr/></td>
 			</tr>			
 			<tr>
-				<td colspan="2"><label>Extension:</label> <input type="text" id="extensions" name= "extension" value=""/> <input type="button" name="submitSearch" onclick="getExtensions(document.getElementById('extensions').value);" value="Search" /></td>				
+				<td colspan="2"><label>Extension:</label> <input type="text" id="extensions" name= "extension" value=""/> <input type="button" name="submitSearch" onclick="getExtensions(document.getElementById('extensions').value);" value="Search"/></td>
 			</tr>
-
 			<tr>
 				<td colspan="2"><div id="divExtensions"></div></td>
 			</tr>
@@ -967,11 +901,8 @@ function GetXmlHttpObject(handler){
 	$content
 
 </div>
-
 OUTPUT;
-
 }
-
 
 function bosssecretary_get_form_add( array $params)
 {
@@ -987,7 +918,6 @@ function bosssecretary_get_form_add( array $params)
 	$vars["message_title"] = $params["message_title"];
 	return bosssecretary_get_form($vars);
 }
-
 
 function bosssecretary_get_form_edit( array $params)
 {
@@ -1007,11 +937,9 @@ function bosssecretary_get_form_edit( array $params)
 	return bosssecretary_get_form($vars);
 }
 
-
 function bosssecretary_get_form ( array $vars)
 {
 	$sForm = file_get_contents(dirname(__FILE__). "/form_template.tpl");
-
 
 	$vars["messages"] = "";
 	if (!empty($vars["message_details"]))
@@ -1027,7 +955,6 @@ function bosssecretary_get_form ( array $vars)
 		unset($vars["message_title"]);
 	}
 
-
 	foreach ($vars as $var => $value)
 	{
 		$sForm = str_replace("{".$var. "}", $value, $sForm);
@@ -1035,23 +962,16 @@ function bosssecretary_get_form ( array $vars)
 	return $sForm;
 }
 
-
-
-
 function bosssecretary_get_delete_button()
 {
 	$sForm = file_get_contents(dirname(__FILE__). "/delete_button.tpl");
 	return str_replace("{delete_button_label}", "Delete Group", $sForm);
 }
 
-
-
 function bosssecretary_show_nav_users($links){
 	echo <<<OUTPUT
-
 <div class="rnav">
 	<ul>
-
 OUTPUT;
 	foreach ($links as $link){
 		$url  = $link['url'];
@@ -1065,8 +985,6 @@ OUTPUT;
 echo <<<OUTPUT
 	</ul>
 </div>
-
 OUTPUT;
 }
-
 ?>
