@@ -1,18 +1,21 @@
 <module>
 	<rawname>bosssecretary</rawname>
 	<name>Boss Secretary</name>
-	<version>1.0</version>
-	<changelog>
-		*1.0* Module changed to new dialpan. Module is now compatible with Asterisk 1.6X and newer with all BLF functionality.
-	</changelog>
+	<version>1.0.1</version>
 	<type>setup</type>
-	<category>Inbound Call Control</category>
+	<category>Applications</category>
 	<description>
 		The boss-secretary module creates a special ring group which includes
 one or more "bosses" and one or more secretaries". When someone calls
 the boss' extension, the secretary (or secretaries) extension will ring only, allowing the secretary to answer his or her boss' call. Only secretary ( or secretaries ) or 'thief extensions' are authorized to call directly to boss extension. With feature code you can turn on or off secretary group. 
 	</description>
+	<candisable>yes</candisable>
+	<canuninstall>yes</canuninstall>
 	<menuitems>
-		<bosssecretary>Boss Secretary</bosssecretary>
+		<bosssecretary category="Applications" type="setup" needsenginedb="true">Boss Secretary</bosssecretary>
 	</menuitems>
+	<changelog>
+		*1.0.1* Minor Cleanup
+		*1.0* Module changed to new dialpan. Module is now compatible with Asterisk 1.6X and newer with all BLF functionality.
+	</changelog>
 </module>

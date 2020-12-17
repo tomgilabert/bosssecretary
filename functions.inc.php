@@ -185,7 +185,7 @@ function bosssecretary_get_config($engine){
 function bosssecretary_get_groups()
 {
 	global $db;
-	$sql = "SELECT * from bosssecretary_group";
+	$sql = "SELECT * from bosssecretary_group;";
 	$results = $db->getAll($sql);
 	if(DB::IsError($results)) {
 		$results = null;
@@ -276,7 +276,7 @@ function bosssecretary_search($extensions)
 			UNION 
 			SELECT secretary_extension AS extension, 'secretary' as `type`, g.* FROM bosssecretary_group as g INNER JOIN bosssecretary_secretary as s ON s.id_group = g.id_group  WHERE secretary_extension IN ($extensions)
 			UNION
-			SELECT chief_extension AS extension, 'chief' as `type`, g.* FROM bosssecretary_group as g INNER JOIN bosssecretary_chief as c ON c.id_group = g.id_group  WHERE chief_extension IN ($extensions)";
+			SELECT chief_extension AS extension, 'chief' as `type`, g.* FROM bosssecretary_group as g INNER JOIN bosssecretary_chief as c ON c.id_group = g.id_group  WHERE chief_extension IN ($extensions);";
 		//echo $sql . "<br>";
 		$results = $db->getAll($sql, array(), DB_FETCHMODE_ASSOC);
 		if(DB::IsError($results)) {
@@ -327,8 +327,7 @@ function bosssecretary_array_diff_with_db(array $exts, $group_number)
 
 		$sql = "SELECT `boss_extension` AS `extension` FROM `bosssecretary_boss` WHERE boss_extension IN ($strExts) $sqlB
 				UNION
-				SELECT `secretary_extension` AS `extension` FROM `bosssecretary_secretary` WHERE secretary_extension IN ($strExts) $sqlS";
-
+				SELECT `secretary_extension` AS `extension` FROM `bosssecretary_secretary` WHERE secretary_extension IN ($strExts) $sqlS;";
 		$results = $db->getAll($sql, array(), DB_FETCHMODE_ASSOC);
 		if(DB::IsError($results))
 		{
@@ -344,7 +343,7 @@ function bosssecretary_array_diff_with_db(array $exts, $group_number)
 				}
 			}
 			$strExts = bosssecretary_array_to_mysql_param_in($exts);
-			$sql = "SELECT extension FROM `users` WHERE extension IN ($strExts)";
+			$sql = "SELECT extension FROM `users` WHERE extension IN ($strExts);";
 			$results = $db->getAll($sql, array(), DB_FETCHMODE_ASSOC);
 			if(DB::IsError($results))
 			{
@@ -364,25 +363,17 @@ function bosssecretary_array_diff_with_db(array $exts, $group_number)
 	return $exts;
 }
 
-
-
-
 function bosssecretary_clean_remove_duplicates( $bosses, $secretaries , $group_number = "")
 {
+	$extensionsCleaned = array();
 	// Extract the Boss extensions
 	$arr_bosses_extensions = bosssecretary_str_extensions_to_array($bosses);
-
 	// Extract the secretary extensions
 	$arr_secretaries_extensions = bosssecretary_str_extensions_to_array($secretaries);
-
 	// Remove the secretary extensions from the boss extensions
 	$arr_secretaries_extensions = bosssecretary_array_diff($arr_secretaries_extensions, $arr_bosses_extensions);
-
-	$extensionsCleaned = array();
-	
 	// Remove the secretary extensions from the list or bosses and secretaries that are already in the database
 	$extensionsCleaned["secretaries"] = bosssecretary_array_diff_with_db($arr_secretaries_extensions, $group_number);
-
 	// Remove the boss extensions from the list or bosses and secretaries that are already in the database
 	$extensionsCleaned["bosses"] = bosssecretary_array_diff_with_db($arr_bosses_extensions, $group_number);
 	return $extensionsCleaned;
@@ -391,14 +382,14 @@ function bosssecretary_clean_remove_duplicates( $bosses, $secretaries , $group_n
 function bosssecretary_get_group_number_free()
 {
 	global $db;
-	$sql = "SELECT MIN(group_number) AS Bottom FROM bosssecretary_group_numbers_free ORDER BY group_number ASC LIMIT 1";
+	$sql = "SELECT MIN(group_number) AS Bottom FROM bosssecretary_group_numbers_free ORDER BY group_number ASC LIMIT 1;";
 	$result = $db->getAll($sql, array(), DB_FETCHMODE_ASSOC);
 	if(DB::IsError($result)) {
 		$result = null;
 	}
 	if (!isset($result[0]["Bottom"]))
 	{
-		$sql = "SELECT MAX(id_group) AS Top FROM bosssecretary_group";
+		$sql = "SELECT MAX(id_group) AS Top FROM bosssecretary_group;";
 		$result = $db->getAll($sql, array(), DB_FETCHMODE_ASSOC);
 		if(DB::IsError($result)) {
 			$result = null;
@@ -423,7 +414,7 @@ function bosssecretary_get_group_number_free()
 function bosssecretary_set_group_number_free($number)
 {
 	global $db;
-	$sql = "INSERT INTO bosssecretary_group_numbers_free VALUES ('$number')";
+	$sql = "INSERT INTO bosssecretary_group_numbers_free VALUES ('$number');";
 	//$result = $db->getAll($sql);
 	return sql($sql);
 }
@@ -431,9 +422,9 @@ function bosssecretary_set_group_number_free($number)
 function bosssecretary_remove_group_number_free($number)
 {
 	global $db;
-	$sql = "DELETE FROM bosssecretary_group_numbers_free WHERE _rowid NOT IN (SELECT _rowid FROM bosssecretary_group) AND _rowid > (SELECT MAX(_rowid) FROM bosssecretary_group)";
+	$sql = "DELETE FROM bosssecretary_group_numbers_free WHERE _rowid NOT IN (SELECT _rowid FROM bosssecretary_group) AND _rowid > (SELECT MAX(_rowid) FROM bosssecretary_group);";
 	sql($sql);
-	$sql = "DELETE FROM bosssecretary_group_numbers_free WHERE _rowid = '$number'";
+	$sql = "DELETE FROM bosssecretary_group_numbers_free WHERE _rowid = '$number';";
 	return sql($sql);
 }
 
@@ -457,7 +448,7 @@ function bosssecretary_group_add ( $group_number, $group_label,  array $bosses, 
 
 			if (empty($errors))
 			{
-				$sql = "INSERT INTO bosssecretary_group (`id_group`, `label`) VALUES('".$db->escapeSimple($group_number)."', '".$db->escapeSimple($group_label)."')";
+				$sql = "INSERT INTO bosssecretary_group (`id_group`, `label`) VALUES('".$db->escapeSimple($group_number)."', '".$db->escapeSimple($group_label)."');";
 				sql($sql);
 				//$group_number = mysql_insert_id();
 				bosssecretary_remove_group_number_free($group_number);
@@ -467,7 +458,7 @@ function bosssecretary_group_add ( $group_number, $group_label,  array $bosses, 
 					$boss = trim($boss);
 					if (!empty($boss) and !(bosssecretary_extension_in_bosses_group($boss)))
 					{
-						$sql = "INSERT INTO bosssecretary_boss VALUES ('$group_number', '$boss')";
+						$sql = "INSERT INTO bosssecretary_boss VALUES ('$group_number', '$boss');";
 						sql($sql);
 					}
 					else
@@ -480,7 +471,7 @@ function bosssecretary_group_add ( $group_number, $group_label,  array $bosses, 
 					$secretary = trim($secretary);
 					if (!empty($secretary) and !(bosssecretary_extension_in_secretaries_group($secretary)))
 					{
-						$sql = "INSERT INTO bosssecretary_secretary VALUES ('$group_number', '$secretary')";
+						$sql = "INSERT INTO bosssecretary_secretary VALUES ('$group_number', '$secretary');";
 						sql($sql);
 					}
 					else
@@ -496,7 +487,7 @@ function bosssecretary_group_add ( $group_number, $group_label,  array $bosses, 
 						$chief = trim($chief);
 						if (!empty($chief))
 						{
-							$sql = "INSERT INTO bosssecretary_chief VALUES ('$group_number', '$chief')";
+							$sql = "INSERT INTO bosssecretary_chief VALUES ('$group_number', '$chief');";
 							sql($sql);
 						}
 					}
@@ -536,26 +527,26 @@ function bosssecretary_group_edit ( $group_number, $group_label,  array $bosses,
 
 			if (empty($errors))
 			{
-				$sql = "DELETE FROM `bosssecretary_group` WHERE id_group = $group_number";
+				$sql = "DELETE FROM `bosssecretary_group` WHERE id_group = $group_number;";
 				sql($sql);
 
-				$sql = "DELETE FROM `bosssecretary_boss` WHERE id_group = $group_number";
+				$sql = "DELETE FROM `bosssecretary_boss` WHERE id_group = $group_number;";
 				sql($sql);
 
-				$sql = "DELETE FROM `bosssecretary_secretary` WHERE id_group = $group_number";
+				$sql = "DELETE FROM `bosssecretary_secretary` WHERE id_group = $group_number;";
 				sql($sql);
 
-				$sql = "DELETE FROM `bosssecretary_chief` WHERE id_group = $group_number";
+				$sql = "DELETE FROM `bosssecretary_chief` WHERE id_group = $group_number;";
 				sql($sql);
 
-				$sql = "INSERT INTO bosssecretary_group (`id_group`, `label`) VALUES('".$db->escapeSimple($group_number)."', '".$db->escapeSimple($group_label)."')";
+				$sql = "INSERT INTO bosssecretary_group (`id_group`, `label`) VALUES('".$db->escapeSimple($group_number)."', '".$db->escapeSimple($group_label)."');";
 				sql($sql);
 				foreach ($bosses as $boss)
 				{
 					$boss = trim($boss);
 					if (!empty($boss))
 					{
-						$sql = "INSERT INTO bosssecretary_boss VALUES ('$group_number', '$boss')";
+						$sql = "INSERT INTO bosssecretary_boss VALUES ('$group_number', '$boss');";
 						sql($sql);
 					}
 				}
@@ -564,7 +555,7 @@ function bosssecretary_group_edit ( $group_number, $group_label,  array $bosses,
 					$secretary = trim($secretary);
 					if (!empty($secretary))
 					{
-						$sql = "INSERT INTO bosssecretary_secretary VALUES ('$group_number', '$secretary')";
+						$sql = "INSERT INTO bosssecretary_secretary VALUES ('$group_number', '$secretary');";
 						sql($sql);
 					}
 				}
@@ -574,7 +565,7 @@ function bosssecretary_group_edit ( $group_number, $group_label,  array $bosses,
 					$chief = trim($chief);
 					if (!empty($chief))
 					{
-						$sql = "INSERT INTO bosssecretary_chief VALUES ('$group_number', '$chief')";
+						$sql = "INSERT INTO bosssecretary_chief VALUES ('$group_number', '$chief');";
 						sql($sql);
 					}
 				}
@@ -596,16 +587,16 @@ function bosssecretary_group_edit ( $group_number, $group_label,  array $bosses,
 function bosssecretary_group_delete($group_number)
 {
 	global $db;
-	$sql = "DELETE FROM `bosssecretary_group` WHERE id_group = '$group_number'";
+	$sql = "DELETE FROM `bosssecretary_group` WHERE id_group = '$group_number';";
 	$group = sql($sql);
 
-	$sql = "DELETE FROM `bosssecretary_boss` WHERE id_group = '$group_number'";
+	$sql = "DELETE FROM `bosssecretary_boss` WHERE id_group = '$group_number';";
 	$bosses = sql($sql);
 
-	$sql = "DELETE FROM `bosssecretary_secretary` WHERE id_group = '$group_number'";
+	$sql = "DELETE FROM `bosssecretary_secretary` WHERE id_group = '$group_number';";
 	$secretaries = sql($sql);
 
-	$sql = "DELETE FROM `bosssecretary_chief` WHERE id_group = '$group_number'";
+	$sql = "DELETE FROM `bosssecretary_chief` WHERE id_group = '$group_number';";
 	$chiefs = sql($sql);
 
 	bosssecretary_set_group_number_free($group_number);
@@ -616,7 +607,7 @@ function bosssecretary_group_exists( $group)
 {
 	global $db;
 
-	$sql = "SELECT 'true' from bosssecretary_group WHERE id_group='" . $db->escapeSimple($group). "' LIMIT 1";
+	$sql = "SELECT 'true' from bosssecretary_group WHERE id_group='" . $db->escapeSimple($group). "' LIMIT 1;";
 	$results = $db->getAll($sql);
 	if(DB::IsError($results)) {
 		$results = null;
@@ -627,7 +618,7 @@ function bosssecretary_group_exists( $group)
 function bosssecretary_extension_in_bosses_group( $ext)
 {
 	global $db;
-	$sql = "SELECT 'true' from bosssecretary_boss WHERE boss_extension='" . $db->escapeSimple($ext) . "' LIMIT 1";
+	$sql = "SELECT 'true' from bosssecretary_boss WHERE boss_extension='" . $db->escapeSimple($ext) . "' LIMIT 1;";
 	$results = $db->getAll($sql);
 	if(DB::IsError($results)) {
 		$results = null;
@@ -638,7 +629,7 @@ function bosssecretary_extension_in_bosses_group( $ext)
 function bosssecretary_extension_in_secretaries_group( $ext)
 {
 	global $db;
-	$sql = "SELECT 'true' from bosssecretary_secretary WHERE secretary_extension='" . $db->escapeSimple($ext) . "' LIMIT 1";
+	$sql = "SELECT 'true' from bosssecretary_secretary WHERE secretary_extension='" . $db->escapeSimple($ext) . "' LIMIT 1;";
 	$results = $db->getAll($sql);
 	if(DB::IsError($results)) {
 		$results = null;
@@ -661,7 +652,7 @@ function bosssecretary_get_data_of_group($group)
 		LEFT JOIN bosssecretary_boss AS b ON b.id_group = g.id_group 
 		LEFT JOIN bosssecretary_secretary AS s ON s.id_group = g.id_group
 		LEFT JOIN bosssecretary_chief AS c ON c.id_group = g.id_group
-		WHERE g.id_group='" .  $db->escapeSimple($group) . "'";
+		WHERE g.id_group='" .  $db->escapeSimple($group) . "';";
 
 	$results = $db->getAll($sql, array(), DB_FETCHMODE_ASSOC);
 	if(DB::IsError($results)) {
@@ -686,7 +677,7 @@ function bosssecretary_get_extension_data($ext){
 
 function bosssecretary_extension_exists($ext){
 	global $db;
-	$sql = "SELECT 'true' FROM `users` WHERE extension = '" . $db->escapeSimple($ext) . "' LIMIT 1";
+	$sql = "SELECT 'true' FROM `users` WHERE extension = '" . $db->escapeSimple($ext) . "' LIMIT 1;";
 	$result = $db->getAll($sql);
 	return count($result[0]) === 1;
 }

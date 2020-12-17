@@ -11,38 +11,37 @@
 //MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //GNU General Public License for more details.
 
-
-if (isset($_GET["extensions"], $_GET["ajax"]))
-{
-	$result = bosssecretary_search($_GET["extensions"]);
-	if (isset($result))
+	// Ajax Search Extension Form result lookup
+	if (isset($_GET["extensions"], $_GET["ajax"]))
 	{
-		if (!empty($result))
+		$result = bosssecretary_search($_GET["extensions"]);
+		if (isset($result))
 		{
-			foreach ($result as $extension)
+			if (!empty($result))
 			{
-				echo $extension["extension"] . " extension is " . $extension["type"] . " at '" . $extension["label"] ."' group <br />";
-			}
+				foreach ($result as $extension)
+				{
+					echo $extension["extension"] . " extension is " . $extension["type"] . " at '" . $extension["label"] ."' group <br />";
+				}
 
+			}
+			else
+			{
+				echo "Not matches";
+			}
 		}
 		else
 		{
-			echo "Not matches";
+			echo "Critery invalid!";
 		}
+		exit(1);
 	}
-	else
-	{
-		echo "Critery invalid!";
-	}
-	exit(1);
-}
 
-	$dispnum = 'bosssecretary'; //used for switch on config.php
-	$extensionsCleaned = array();
-	$title = _("Boss Secretary");
-	$messages	= "";
-	$params = array();
-	
+	$dispnum 		= 'bosssecretary'; //used for switch on config.php
+	$extensionsCleaned 	= array();
+	$title 			= _("Boss Secretary");
+	$messages		= "";
+	$params 		= array();
 	
 	if (isset($_POST["cleanAdd"]) || (isset($_POST["cleanEdit"])) || isset($_POST["submitAdd"]) || isset($_POST["submitEdit"]))
 	{
@@ -50,7 +49,6 @@ if (isset($_GET["extensions"], $_GET["ajax"]))
 		$extensionsCleaned = bosssecretary_clean_remove_duplicates($_POST["bosses_extensions"], $_POST["secretaries_extensions"], $_POST["group_number"]);
 	}
 
-		
 	if (isset($_POST["submitAdd"])) 
 	{
 		$group_number = bosssecretary_get_group_number_free();
@@ -149,10 +147,8 @@ if (isset($_GET["extensions"], $_GET["ajax"]))
 		$content = "<br /> <br /> <br /> <h3>Choose a group or add one:</h3>";
 	}
 	
-
 	$groups = bosssecretary_get_groups();
 	$linksGroups = bosssecretary_create_nav_groups_links($groups, $dispnum);
-
 	
 	bosssecretary_show_nav_users($linksGroups);
 	bosssecretary_content($title, $content, $messages);

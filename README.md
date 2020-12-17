@@ -8,15 +8,23 @@ allowing the secretary to answer his or her boss' call.
 Additionally, you can define one or more chief extensions, 
 who may call boss extension directly without ringing the secretary's extension.
 
-The module includes codes for activating, deactivating and toggling the
-groups' state. For example, when a secretary ends her working day, she
-may turn off the boss-secretary group dialing *152<ext number>, so her
-boss will receive calls directly. 
+The module includes codes for activating (*153), deactivating(*153) and
+toggling(*152) the groups' state. For example, when a secretary ends her working day, she
+may turn off the boss-secretary group by dialing *152+`<ext number>`, so her
+boss will receive calls directly.
 
 The module generates the appropriate hints to have ip phones show the
-groups state by subscribing to the *152<ext number> extension. 
+groups state by subscribing to the *152+`<ext number>` extension (context:`
+app-bosssecretary-hints`). 
 You can set this functionality to blf button on your phone.
 
 For example for Linksys/ Cisco phones:
 
-`fnc=blf+sd;sub=*152EXT@$PROXY;ext=*152@PROXY`
+```
+fnc=blf+sd;sub=*152EXT@$PROXY;ext=*152@PROXY
+```
+
+Or chan_sccp for a secretry using extension 9999:
+```
+button = speeddial, *152, ToggleBossSecretry, *1529999@app-bosssecretary-hints
+```
