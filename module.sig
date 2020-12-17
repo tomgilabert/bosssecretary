@@ -17,15 +17,15 @@ signedby=sign.php
 repo=local
 type=local
 [hashes]
-bosssecretary.sig = b2677384e5e4fea13a7cfb4b9495ad4719ef93c16ef911b3ce41fa75a508d9f1
+bosssecretary.sig = 491ff5063fc71abcfc0e387918ba946fcdf22e42601d318de15ec9f4d3662ac4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.22 (GNU/Linux)
 
-iQEcBAEBAgAGBQJf2xmmAAoJELXcygqWoMcr1akIAMnH4MXFF/XAl4Xd0l5iUCEv
-ZX2sakyGfJ9s+kD4axYaqk46eixHCI2yCZGLo7sCzf9IffLELJG0Nc0qIXOsDJJm
-5M44vxG/kkNn1LowHqm8kmW76xVlVSPDrHgfgHqxdyOeYlC1YZ3atMuro452pBfh
-HqN3S2aCikl/6uVp1dkoETjMd14UJwVByPuwPSy37rHeQZEKU4eXNJ8Rp0TQmAzF
-bSwQY4/lhRoTxwR5Nm4Kscu87Ru0GzO2DbDvbrwP4u4AnKvL5b2L4LMNNvG6KPP1
-YjwOk1YMLQctvZf5oA2x2yzjANxgaWnAvv3T7LDZ9dpknNqZfivDmPnjfDBVBvc=
-=TWaT
+iQEcBAEBAgAGBQJf2xznAAoJELXcygqWoMcrt08H/RvqT/oKcReAd6fDnTTizxZW
+nx9/kw1lvNtZa80X0pL3JoXhhj3mhTA8Cz9mEXox/eEOef8y1a0wKh+chQyWgqHv
+EmrnZSscv7JO4wX6J3oihs9s6MZAlhnRyynSiYbI3pXK6pgeJTaS4lZuK0D5q5Iv
+vAASj8Y5vgNjOlNxvcCuU4C5ebImiVkvmYtgD6nwCJS1qmWY2wUEDyDdFrZZWXli
+5mF0AJHTpuX86JOUV555F0L+ONlqqTSHIE25cH6ziKE1+FTproHJ/KAjuqpOtjrK
+txkclBBsIbchcW9XprE9A1hfaa9RH7p+2sbMa3qLZQ8QtJwXb1OF8fGRyKesNww=
+=rOlq
 -----END PGP SIGNATURE-----
