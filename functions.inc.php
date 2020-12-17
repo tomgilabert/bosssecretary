@@ -153,9 +153,9 @@ function bosssecretary_get_config($engine){
 						$ext->add($ctx_bsc, $extension, '', new ext_noop("Bosssecretary: Checking lock for $extension extension"));
 						$ext->add($ctx_bsc, $extension, '', new ext_macro ('user-callerid'));
 						$ext->add($ctx_bsc, $extension, '', new ext_setvar('CALLER','${CALLERID(num)}'));
-						$ext->add($ctx_bsc, $extension, '', new ext_gotoif('${DB_EXISTS(bosssecretary/group/'.$id_group.'/member/${CALLER})}','exit_module'));
-						$ext->add($ctx_bsc, $extension, '', new ext_gotoif('${DB_EXISTS(bosssecretary/group/'.$id_group.'/locked)}','exit_module','run_module'));
-						$ext->add($ctx_bsc, $extension, 'run_module', new ext_noop("Bosssecretary: Executing module"));
+						$ext->add($ctx_bsc, $extension, '', new ext_gotoif('${DB_EXISTS(bosssecretary/group/'.$id_group.'/member/${CALLER})}','group_member'));
+						$ext->add($ctx_bsc, $extension, '', new ext_gotoif('${DB_EXISTS(bosssecretary/group/'.$id_group.'/locked)}','exit_module','call_secretary'));
+						$ext->add($ctx_bsc, $extension, 'call_secretary', new ext_noop("Bosssecretary: Executing module"));
 						$ext->add($ctx_bsc, $extension, '', new ext_sipaddheader("Alert-Info", "<http://nohost>\;info=alert-group\;x-line-id=0"));
 						$ext->add($ctx_bsc, $extension, '', new ext_setvar("Alert-Info", "bellcore-dr3")); // feature ring
 						$extensions = array();
@@ -168,8 +168,9 @@ function bosssecretary_get_config($engine){
 						}
 						$args = '${RINGTIMER},${DIAL_OPTIONS},' . implode ("-", $extensions);
 						$ext->add($ctx_bsc, $extension, '', new ext_macro ("dial", $args));
-						$ext->add($ctx_bsc, $extension, 'exit_module', new ext_noop("Bosssecretary: Exit") );
+						$ext->add($ctx_bsc, $extension, 'group_member', new ext_noop("Bosssecretary: GroupMember") );
 						$ext->add($ctx_bsc, $extension, '', new ext_setvar("Alert-Info", "bellcore-dr5"));  // urgent ring to override '!silent'
+						$ext->add($ctx_bsc, $extension, 'exit_module', new ext_noop("Bosssecretary: Exit") );
 						$ext->add($ctx_bsc, $extension, '', new ext_goto(1, $extension, "ext-local") );
 						$extensions = "";
 					}
