@@ -150,26 +150,30 @@ function bosssecretary_get_config($engine){
 
 					foreach ($group["bosses"] as $extension)
 					{
+						$extensions = array();
 						$ext->add($ctx_bsc, $extension, '', new ext_noop("Bosssecretary: Checking lock for $extension extension"));
 						$ext->add($ctx_bsc, $extension, '', new ext_macro ('user-callerid'));
 						$ext->add($ctx_bsc, $extension, '', new ext_setvar('CALLER','${CALLERID(num)}'));
-						$ext->add($ctx_bsc, $extension, '', new ext_gotoif('${DB_EXISTS(bosssecretary/group/'.$id_group.'/member/${CALLER})}','group_member'));
+						if ($silent_ring === "on") {
+							$extensions[] = "$extension";
+							$ext->add($ctx_bsc, $extension, '', new ext_gotoif('${DB_EXISTS(bosssecretary/group/'.$id_group.'/member/${CALLER})}','group_member'));
+						} else {
+							$ext->add($ctx_bsc, $extension, '', new ext_gotoif('${DB_EXISTS(bosssecretary/group/'.$id_group.'/member/${CALLER})}','exit_module'));
+						}
 						$ext->add($ctx_bsc, $extension, '', new ext_gotoif('${DB_EXISTS(bosssecretary/group/'.$id_group.'/locked)}','exit_module','call_secretary'));
 						$ext->add($ctx_bsc, $extension, 'call_secretary', new ext_noop("Bosssecretary: Executing module"));
 						$ext->add($ctx_bsc, $extension, '', new ext_sipaddheader("Alert-Info", "<http://nohost>\;info=alert-group\;x-line-id=0"));
 						$ext->add($ctx_bsc, $extension, '', new ext_setvar("Alert-Info", "bellcore-dr3")); // feature ring
-						$extensions = array();
-						if ($silent_ring === "on") {
-							$extensions[] = "$extension";
-						}
 						foreach ($group["secretaries"] as $secretary_ext)
 						{
 							$extensions[] = "$secretary_ext";
 						}
 						$args = '${RINGTIMER},${DIAL_OPTIONS},' . implode ("-", $extensions);
 						$ext->add($ctx_bsc, $extension, '', new ext_macro ("dial", $args));
-						$ext->add($ctx_bsc, $extension, 'group_member', new ext_noop("Bosssecretary: GroupMember") );
-						$ext->add($ctx_bsc, $extension, '', new ext_setvar("Alert-Info", "bellcore-dr5"));  // urgent ring to override '!silent'
+						if ($silent_ring === "on") {
+							$ext->add($ctx_bsc, $extension, 'group_member', new ext_noop("Bosssecretary: GroupMember") );
+							$ext->add($ctx_bsc, $extension, '', new ext_setvar("Alert-Info", "bellcore-dr5"));  // urgent ring to override '!silent' when silent_ring is active
+						}
 						$ext->add($ctx_bsc, $extension, 'exit_module', new ext_noop("Bosssecretary: Exit") );
 						$ext->add($ctx_bsc, $extension, '', new ext_goto(1, $extension, "ext-local") );
 						$extensions = "";
@@ -837,7 +841,7 @@ function getExtensions(extensions)
 	xmlHttp=GetXmlHttpObject(setExtensions);
 	xmlHttp.open("GET", url , true);
 	xmlHttp.send(null);
-	document.getElementById('divExtensions').innerHTML = "Searching";
+	document.getElementById('divExtensions').innerHTML = "Searching...";
 	return true;
 }
 
@@ -882,24 +886,23 @@ function GetXmlHttpObject(handler){
 </script>
 <form method="post" name=searchbosssecretary action="config.php?display=bosssecretary" onsubmit="getExtensions(document.getElementById('extensions').value); return false;">
 <table>
-			<tr>
-				<td colspan="2"><h5>Lookup Extension</h5><hr/></td>
-			</tr>			
-			<tr>
-				<td colspan="2"><label>Extension:</label> <input type="text" id="extensions" name= "extension" value=""/> <input type="button" name="submitSearch" onclick="getExtensions(document.getElementById('extensions').value);" value="Search"/></td>
-			</tr>
-			<tr>
-				<td colspan="2"><div id="divExtensions"></div></td>
-			</tr>
-			<tr>
-				<td colspan="2"><hr /></td>
-			</tr>			
+	<tr>
+		<td colspan="2">
+		<label>Lookup Extension:</label>
+		<input type="text" id="extensions" name= "extension" value=""/>
+		<input type="button" name="submitSearch" onclick="getExtensions(document.getElementById('extensions').value);" value="Search"/>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2"><div id="divExtensions"></div></td>
+	</tr>
+	<tr>
+		<td colspan="2"><br /></td>
+	</tr>
 </table>
 </form>
-
 	$messages
 	$content
-
 </div>
 OUTPUT;
 }

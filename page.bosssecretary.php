@@ -21,7 +21,11 @@
 			{
 				foreach ($result as $extension)
 				{
-					echo $extension["extension"] . " extension is " . $extension["type"] . " at '" . $extension["label"] ."' group <br />";
+					# use BOSSSECRETARY_PARAM_PREFIX
+					echo $extension["extension"] . " extension is " . $extension["type"] . " at '" .
+					"<a href='config.php?display=bosssecretary&bsgroupdisplay=bsgroup-" . $extension["id_group"] . "'>" .
+					$extension["label"] .
+					"</a>' group <br />";
 				}
 
 			}
