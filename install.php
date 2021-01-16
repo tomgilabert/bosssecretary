@@ -1,6 +1,5 @@
 <?php
 
-
 $fcc = new featurecode('bosssecretary', 'bsc_toggle');
 $fcc->setDescription('Bosssecretary Toggle');
 $fcc->setDefault('*152');
@@ -13,23 +12,17 @@ $fcc->setDefault('*153');
 $fcc->update();
 unset($fcc);
 
-
 $fcc = new featurecode('bosssecretary', 'bsc_off');
 $fcc->setDescription('Bosssecretary Off');
 $fcc->setDefault('*154');
 $fcc->update();
 unset($fcc);
 
-
-
 $sql = " DROP TABLE IF EXISTS  `bosssecretary_config`";
 $check = $db->query($sql);
 if(DB::IsError($check)) {
 	die_freepbx("Can not drop bosssecretary_config table");
 }
-
- 
-
 
 $sql = "
 CREATE TABLE IF NOT EXISTS `bosssecretary_chief` (
@@ -62,7 +55,7 @@ if(DB::IsError($results)) {
 	die_freepbx("Can not check bosssecretary_group table");
 }
 
-if (!in_array($results, 'silent_ring')) {
+if (!in_array('silent_ring', $results)) {
 	$sql = "ALTER TABLE `bosssecretary_boss` ADD `silent_ring` ENUM('on','off') default 'off' NOT NULL";
 	$check = $db->query($sql);
 	if(DB::IsError($check)) {
@@ -82,8 +75,6 @@ if(DB::IsError($check)) {
 	die_freepbx("Can not create bosssecretary_group table");
 }
 
-
-
 $sql = "SHOW COLUMNS FROM `bosssecretary_group`";
 $results = $db->getAll($sql);
 if(DB::IsError($results)) {
@@ -92,7 +83,6 @@ if(DB::IsError($results)) {
 
 foreach ($results as $column)
 {
-
 	if (trim(strtolower($column["Field"])) == "dring")
 	{
 		$sql = "ALTER TABLE `bosssecretary_group` DROP `".$column["Field"]."` ";
@@ -141,7 +131,5 @@ $check = $db->query($sql);
 if(DB::IsError($check)) {
 	die_freepbx("Can not create bosssecretary_group_numbers_free");
 }
-
-
 
 ?>
