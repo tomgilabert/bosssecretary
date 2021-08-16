@@ -163,7 +163,8 @@ function bosssecretary_get_config($engine){
 						}
 						$ext->add($ctx_bsc, $extension, '', new ext_gotoif('${DB_EXISTS(bosssecretary/group/'.$id_group.'/locked)}','exit_module','call_secretary'));
 						$ext->add($ctx_bsc, $extension, 'call_secretary', new ext_noop("Bosssecretary: Executing module"));
-						$ext->add($ctx_bsc, $extension, '', new ext_sipaddheader("Alert-Info", "<http://nohost>\;info=alert-group\;x-line-id=0"));
+						// Function SIPAddHeader not working for PJSIP channels
+						// $ext->add($ctx_bsc, $extension, '', new ext_sipaddheader("Alert-Info", "<http://nohost>\;info=alert-group\;x-line-id=0"));
 						$ext->add($ctx_bsc, $extension, '', new ext_setvar("Alert-Info", "bellcore-dr3")); // feature ring
 						foreach ($group["secretaries"] as $secretary_ext)
 						{
