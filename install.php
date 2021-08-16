@@ -49,17 +49,19 @@ if(DB::IsError($check)) {
         die_freepbx("Can not create bosssecretary_boss table");
 }
 
-$sql = "SHOW COLUMNS FROM `bosssecretary_boss`";
-$results = $db->getAll($sql);
-if(DB::IsError($results)) {
-	die_freepbx("Can not check bosssecretary_group table");
+$sql = "DESCRIBE asterisk.bosssecretary_boss";
+$check = $db->prepare($sql);
+if(DB::IsError($check)) {
+        die_freepbx("Can not create bosssecretary_boss table");
 }
+$check->execute();
+$results = $check->fetchAll(PDO::FETCH_COLUMN);
 
 if (!in_array('silent_ring', $results)) {
 	$sql = "ALTER TABLE `bosssecretary_boss` ADD `silent_ring` ENUM('on','off') default 'off' NOT NULL";
 	$check = $db->query($sql);
 	if(DB::IsError($check)) {
-		die_freepbx("Can not alter bosssecretary_group table");
+		die_freepbx("Can not alter bosssecretary_boss table");
 	}
 }
 
